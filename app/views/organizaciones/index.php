@@ -40,7 +40,7 @@
 
 Seccion Organizaciones - <?=$this->tag->linkTo("index","Regresar"); ?>
 <p>
-<?=$this->tag->linkTo("organizaciones/add","Agregar"); ?>
+
 </p>
 
 

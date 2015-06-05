@@ -5,6 +5,7 @@ namespace Phalcon\Mvc\Model\Behavior;
 use Phalcon\Mvc\Model\Behavior;
 use Phalcon\Mvc\Model\BehaviorInterface;
 use Phalcon\Mvc\Model;
+use Phalcon\Mvc\ModelInterface;
 
 class NestedSet extends Behavior implements BehaviorInterface
 {
@@ -19,7 +20,7 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     private $deleted = false;
 
-    public function __construct($options)
+    public function __construct($options = null)
     {
         if (isset($options['hasManyRoots'])) {
             $this->hasManyRoots = (bool) $options['hasManyRoots'];
@@ -46,7 +47,7 @@ class NestedSet extends Behavior implements BehaviorInterface
         }
     }
 
-    public function notify($eventType, $model)
+    public function notify($eventType, ModelInterface $model)
     {
         $message = 'You should not use this method when NestedSetBehavior attached. Use the methods of behavior.';
         switch ($eventType) {
@@ -60,19 +61,19 @@ class NestedSet extends Behavior implements BehaviorInterface
         }
     }
 
-    public function missingMethod($model, $method, $arguments = null)
+    public function missingMethod(ModelInterface $model, $method, $arguments = null)
     {
-        if (method_exists($this, $method)) {
-            $this->setOwner($model);
-            $result = call_user_func_array(array($this, $method), $arguments);
-            if ($result===null) {
-                return '';
-            }
-
-            return $result;
+        if (!method_exists($this, $method)) {
+            return null;
         }
 
-        return null;
+        $this->setOwner($model);
+        $result = call_user_func_array(array($this, $method), $arguments);
+        if ($result === null) {
+            return '';
+        }
+
+        return $result;
     }
 
     public function getOwner()
@@ -92,6 +93,7 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Returns if the current node is deleted.
+     *
      * @return boolean whether the node is deleted.
      */
     public function getIsDeletedRecord()
@@ -101,46 +103,51 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Sets if the current node is deleted.
+     *
      * @param boolean $value whether the node is deleted.
      */
     public function setIsDeletedRecord($value)
     {
-        $this->deleted=$value;
+        $this->deleted = $value;
     }
 
     /**
      * Determines if node is leaf.
+     *
      * @return boolean whether the node is leaf.
      */
     public function isLeaf()
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
 
-        return $owner->{$this->rightAttribute}-$owner->{$this->leftAttribute}===1;
+        return $owner->{$this->rightAttribute} - $owner->{$this->leftAttribute} === 1;
     }
 
     /**
      * Determines if node is root.
+     *
      * @return boolean whether the node is root.
      */
     public function isRoot()
     {
-        return $this->getOwner()->{$this->leftAttribute}==1;
+        return $this->getOwner()->{$this->leftAttribute} == 1;
     }
 
     /**
      * Determines if node is descendant of subject node.
+     *
      * @param  \Phalcon\Mvc\ModelInterface $subj the subject node.
+     *
      * @return boolean                     whether the node is descendant of subject node.
      */
     public function isDescendantOf($subj)
     {
-        $owner=$this->getOwner();
-        $result=($owner->{$this->leftAttribute}>$subj->{$this->leftAttribute})
-            && ($owner->{$this->rightAttribute}<$subj->{$this->rightAttribute});
+        $owner = $this->getOwner();
+        $result = ($owner->{$this->leftAttribute} > $subj->{$this->leftAttribute})
+            && ($owner->{$this->rightAttribute} < $subj->{$this->rightAttribute});
 
         if ($this->hasManyRoots) {
-            $result=$result && ($owner->{$this->rootAttribute}===$subj->{$this->rootAttribute});
+            $result = $result && ($owner->{$this->rootAttribute} === $subj->{$this->rootAttribute});
         }
 
         return $result;
@@ -148,8 +155,10 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Named scope. Gets descendants for node.
-     * @param  int                                    $depth the depth.
-     * @return \Phalcon\Mvc\Model\ResultsetInterface.
+     *
+     * @param  int $depth the depth.
+     *
+     * @return \Phalcon\Mvc\Model\ResultsetInterface
      */
     public function descendants($depth = null)
     {
@@ -160,12 +169,12 @@ class NestedSet extends Behavior implements BehaviorInterface
             ->andWhere($this->rightAttribute . '<' . $owner->{$this->rightAttribute})
             ->orderBy($this->leftAttribute);
 
-        if ($depth!==null) {
-            $query = $query->andWhere($this->levelAttribute.'<='.($owner->{$this->levelAttribute}+$depth));
+        if ($depth !== null) {
+            $query = $query->andWhere($this->levelAttribute . '<=' . ($owner->{$this->levelAttribute} + $depth));
         }
 
         if ($this->hasManyRoots) {
-            $query = $query->andWhere($this->rootAttribute.'='.$owner->{$this->rootAttribute});
+            $query = $query->andWhere($this->rootAttribute . '=' . $owner->{$this->rootAttribute});
         }
 
         return $query->execute();
@@ -173,7 +182,8 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Named scope. Gets children for node (direct descendants only).
-     * @return \Phalcon\Mvc\Model\ResultsetInterface.
+     *
+     * @return \Phalcon\Mvc\Model\ResultsetInterface
      */
     public function children()
     {
@@ -182,24 +192,26 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Named scope. Gets ancestors for node.
-     * @param  int                                    $depth the depth.
-     * @return \Phalcon\Mvc\Model\ResultsetInterface.
+     *
+     * @param  int $depth the depth.
+     *
+     * @return \Phalcon\Mvc\Model\ResultsetInterface
      */
     public function ancestors($depth = null)
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
 
         $query = $owner::query()
             ->where($this->leftAttribute . '<' . $owner->{$this->leftAttribute})
             ->andWhere($this->rightAttribute . '>' . $owner->{$this->rightAttribute})
             ->orderBy($this->leftAttribute);
 
-        if ($depth!==null) {
-            $query = $query->andWhere($this->levelAttribute.'>='.($owner->{$this->levelAttribute}-$depth));
+        if ($depth !== null) {
+            $query = $query->andWhere($this->levelAttribute . '>=' . ($owner->{$this->levelAttribute} - $depth));
         }
 
         if ($this->hasManyRoots) {
-            $query = $query->andWhere($this->rootAttribute.'='.$owner->{$this->rootAttribute});
+            $query = $query->andWhere($this->rootAttribute . '=' . $owner->{$this->rootAttribute});
         }
 
         return $query->execute();
@@ -208,7 +220,7 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Named scope. Gets root node(s).
      *
-     * @return \Phalcon\Mvc\Model\ResultsetInterface.
+     * @return \Phalcon\Mvc\Model\ResultsetInterface
      */
     public function roots()
     {
@@ -234,7 +246,7 @@ class NestedSet extends Behavior implements BehaviorInterface
             ->limit(1);
 
         if ($this->hasManyRoots) {
-            $query = $query->andWhere($this->rootAttribute.'='.$owner->{$this->rootAttribute});
+            $query = $query->andWhere($this->rootAttribute . '=' . $owner->{$this->rootAttribute});
         }
 
         return $query->execute()->getFirst();
@@ -243,16 +255,17 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Named scope. Gets previous sibling of node.
-     * @return \Phalcon\Mvc\ModelInterface.
+     *
+     * @return \Phalcon\Mvc\ModelInterface
      */
     public function prev()
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
         $query = $owner::query()
-            ->where($this->rightAttribute.'='.($owner->{$this->leftAttribute}-1));
+            ->where($this->rightAttribute . '=' . ($owner->{$this->leftAttribute} - 1));
 
         if ($this->hasManyRoots) {
-            $query = $query->andWhere($this->rootAttribute.'='.$owner->{$this->rootAttribute});
+            $query = $query->andWhere($this->rootAttribute . '=' . $owner->{$this->rootAttribute});
         }
 
         return $query->execute()->getFirst();
@@ -260,16 +273,17 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Named scope. Gets next sibling of node.
-     * @return \Phalcon\Mvc\ModelInterface.
+     *
+     * @return \Phalcon\Mvc\ModelInterface
      */
     public function next()
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
         $query = $owner::query()
-            ->where($this->leftAttribute.'='.($owner->{$this->rightAttribute}+1));
+            ->where($this->leftAttribute . '=' . ($owner->{$this->rightAttribute} + 1));
 
         if ($this->hasManyRoots) {
-            $query = $query->andWhere($this->rootAttribute.'='.$owner->{$this->rootAttribute});
+            $query = $query->andWhere($this->rootAttribute . '=' . $owner->{$this->rootAttribute});
         }
 
         return $query->execute()->getFirst();
@@ -278,20 +292,22 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Prepends node to target as first child.
      *
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     * @param  \Phalcon\Mvc\ModelInterface $target the target
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the prepending succeeds.
      */
     public function prependTo($target, $attributes = null)
     {
-        return $this->addNode($target, $target->{$this->leftAttribute}+1, 1, $attributes);
+        return $this->addNode($target, $target->{$this->leftAttribute} + 1, 1, $attributes);
     }
 
     /**
      * Prepends target to node as first child.
      *
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     * @param  \Phalcon\Mvc\ModelInterface $target the target.
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the prepending succeeds.
      */
     public function prepend($target, $attributes = null)
@@ -302,8 +318,9 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Appends node to target as last child.
      *
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     * @param  \Phalcon\Mvc\ModelInterface $target the target.
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the appending succeeds.
      */
     public function appendTo($target, $attributes = null)
@@ -314,8 +331,9 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Appends target to node as last child.
      *
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     * @param  \Phalcon\Mvc\ModelInterface $target the target.
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the appending succeeds.
      */
     public function append($target, $attributes = null)
@@ -326,8 +344,9 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Inserts node as previous sibling of target.
      *
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     * @param  \Phalcon\Mvc\ModelInterface $target the target.
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the inserting succeeds.
      */
     public function insertBefore($target, $attributes = null)
@@ -337,8 +356,10 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Inserts node as next sibling of target.
-     * @param  \Phalcon\Mvc\ModelInterface $target     the target.
-     * @param  array                       $attributes list of attributes.
+     *
+     * @param  \Phalcon\Mvc\ModelInterface $target the target.
+     * @param  array $attributes                   list of attributes.
+     *
      * @return boolean                     whether the inserting succeeds.
      */
     public function insertAfter($target, $attributes = null)
@@ -350,7 +371,8 @@ class NestedSet extends Behavior implements BehaviorInterface
      * Move node as previous sibling of target.
      *
      * @param  \Phalcon\Mvc\ModelInterface $target the target.
-     * @return boolean                     whether the moving succeeds.
+     *
+     * @return boolean
      */
     public function moveBefore($target)
     {
@@ -361,7 +383,8 @@ class NestedSet extends Behavior implements BehaviorInterface
      * Move node as next sibling of target.
      *
      * @param  \Phalcon\Mvc\ModelInterface $target the target.
-     * @return boolean                     whether the moving succeeds.
+     *
+     * @return boolean
      */
     public function moveAfter($target)
     {
@@ -372,18 +395,20 @@ class NestedSet extends Behavior implements BehaviorInterface
      * Move node as first child of target.
      *
      * @param  \Phalcon\Mvc\ModelInterface $target the target.
-     * @return boolean                     whether the moving succeeds.
+     *
+     * @return boolean
      */
     public function moveAsFirst($target)
     {
-        return $this->moveNode($target, $target->{$this->leftAttribute}+1, 1);
+        return $this->moveNode($target, $target->{$this->leftAttribute} + 1, 1);
     }
 
     /**
      * Move node as last child of target.
      *
      * @param  \Phalcon\Mvc\ModelInterface $target the target.
-     * @return boolean                     whether the moving succeeds.
+     *
+     * @return boolean
      */
     public function moveAsLast($target)
     {
@@ -392,7 +417,8 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Move node as new root.
-     * @return boolean                      whether the moving succeeds.
+     *
+     * @return boolean
      * @throws \Phalcon\Mvc\Model\Exception
      */
     public function moveAsRoot()
@@ -417,22 +443,22 @@ class NestedSet extends Behavior implements BehaviorInterface
 
         $owner->getDI()->getDb()->begin();
 
-        $left=$owner->{$this->leftAttribute};
-        $right=$owner->{$this->rightAttribute};
-        $levelDelta=1-$owner->{$this->levelAttribute};
-        $delta=1-$left;
+        $left = $owner->{$this->leftAttribute};
+        $right = $owner->{$this->rightAttribute};
+        $levelDelta = 1 - $owner->{$this->levelAttribute};
+        $delta = 1 - $left;
 
-        $condition = $this->leftAttribute.'>='.$left.' AND ';
-        $condition.= $this->rightAttribute.'<='.$right.' AND ';
-        $condition.= $this->rootAttribute.'='.$owner->{$this->rootAttribute};
+        $condition = $this->leftAttribute . '>=' . $left . ' AND ';
+        $condition .= $this->rightAttribute . '<=' . $right . ' AND ';
+        $condition .= $this->rootAttribute . '=' . $owner->{$this->rootAttribute};
 
         $this->ignoreEvent = true;
         foreach ($owner::find($condition) as $i) {
             $arr = array(
-                $this->leftAttribute=>$i->{$this->leftAttribute}+$delta,
-                $this->rightAttribute=>$i->{$this->rightAttribute}+$delta,
-                $this->levelAttribute=>$i->{$this->levelAttribute}+$levelDelta,
-                $this->rootAttribute=>$owner->{$this->primaryKey}
+                $this->leftAttribute => $i->{$this->leftAttribute} + $delta,
+                $this->rightAttribute => $i->{$this->rightAttribute} + $delta,
+                $this->levelAttribute => $i->{$this->levelAttribute} + $levelDelta,
+                $this->rootAttribute => $owner->{$this->primaryKey}
             );
             if ($i->update($arr) == false) {
                 $owner->getDI()->getDb()->rollback();
@@ -443,7 +469,7 @@ class NestedSet extends Behavior implements BehaviorInterface
         }
         $this->ignoreEvent = false;
 
-        $this->shiftLeftRight($right+1, $left-$right-1);
+        $this->shiftLeftRight($right + 1, $left - $right - 1);
 
         $owner->getDI()->getDb()->commit();
 
@@ -453,9 +479,10 @@ class NestedSet extends Behavior implements BehaviorInterface
     /**
      * Create root node if multiple-root tree mode. Update node if it's not new.
      *
-     * @param  array   $attributes list of attributes.
-     * @param  array   $whiteList  whether to perform validation.
-     * @return boolean whether the saving succeeds.
+     * @param  array $attributes list of attributes.
+     * @param  array $whiteList  whether to perform validation.
+     *
+     * @return boolean
      */
     public function saveNode($attributes = null, $whiteList = null)
     {
@@ -473,12 +500,13 @@ class NestedSet extends Behavior implements BehaviorInterface
 
     /**
      * Deletes node and it's descendants.
-     * @return boolean                      whether the deletion is successful.
+     *
+     * @return boolean
      * @throws \Phalcon\Mvc\Model\Exception
      */
     public function deleteNode()
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
 
         if ($this->getIsNewRecord()) {
             throw new \Phalcon\Mvc\Model\Exception('The node cannot be deleted because it is new.');
@@ -491,20 +519,20 @@ class NestedSet extends Behavior implements BehaviorInterface
         $owner->getDI()->getDb()->begin();
 
         if ($owner->isLeaf()) {
-            $this->ignoreEvent=true;
+            $this->ignoreEvent = true;
             if ($owner->delete() == false) {
                 $owner->getDI()->getDb()->rollback();
                 $this->ignoreEvent = false;
 
                 return false;
             }
-            $this->ignoreEvent=false;
+            $this->ignoreEvent = false;
         } else {
-            $condition=$this->leftAttribute.'>='.$owner->{$this->leftAttribute}.' AND ';
-            $condition.=$this->rightAttribute.'<='.$owner->{$this->rightAttribute};
+            $condition = $this->leftAttribute . '>=' . $owner->{$this->leftAttribute} . ' AND ';
+            $condition .= $this->rightAttribute . '<=' . $owner->{$this->rightAttribute};
 
             if ($this->hasManyRoots) {
-                $condition.=' AND '.$this->rootAttribute.'='.$owner->{$this->rootAttribute};
+                $condition .= ' AND ' . $this->rootAttribute . '=' . $owner->{$this->rootAttribute};
             }
 
             $this->ignoreEvent = true;
@@ -519,8 +547,8 @@ class NestedSet extends Behavior implements BehaviorInterface
             $this->ignoreEvent = false;
         }
 
-        $key = $owner->{$this->rightAttribute}+1;
-        $delta = $owner->{$this->leftAttribute}-$owner->{$this->rightAttribute}-1;
+        $key = $owner->{$this->rightAttribute} + 1;
+        $delta = $owner->{$this->leftAttribute} - $owner->{$this->rightAttribute} - 1;
         $this->shiftLeftRight($key, $delta);
 
         $owner->getDI()->getDb()->commit();
@@ -529,15 +557,16 @@ class NestedSet extends Behavior implements BehaviorInterface
     }
 
     /**
-     * @param  \Phalcon\Mvc\ModelInterface  $target.
-     * @param  int                          $key.
-     * @param  int                          $levelUp.
-     * @return boolean.
+     * @param  \Phalcon\Mvc\ModelInterface $target
+     * @param  int $key
+     * @param  int $levelUp
+     *
+     * @return boolean
      * @throws \Phalcon\Mvc\Model\Exception
      */
     private function moveNode($target, $key, $levelUp)
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
 
         if (!$target) {
             throw new \Phalcon\Mvc\Model\Exception('Target node is not defined.');
@@ -555,7 +584,7 @@ class NestedSet extends Behavior implements BehaviorInterface
             throw new \Phalcon\Mvc\Model\Exception('The target node should not be deleted.');
         }
 
-        if ($owner==$target) {
+        if ($owner == $target) {
             throw new \Phalcon\Mvc\Model\Exception('The target node should not be self.');
         }
 
@@ -569,16 +598,17 @@ class NestedSet extends Behavior implements BehaviorInterface
 
         $owner->getDI()->getDb()->begin();
 
-        $left=$owner->{$this->leftAttribute};
-        $right=$owner->{$this->rightAttribute};
-        $levelDelta=$target->{$this->levelAttribute}-$owner->{$this->levelAttribute}+$levelUp;
+        $left = $owner->{$this->leftAttribute};
+        $right = $owner->{$this->rightAttribute};
+        $levelDelta = $target->{$this->levelAttribute} - $owner->{$this->levelAttribute} + $levelUp;
 
-        if ($this->hasManyRoots && $owner->{$this->rootAttribute}!==$target->{$this->rootAttribute}) {
+        if ($this->hasManyRoots && $owner->{$this->rootAttribute} !== $target->{$this->rootAttribute}) {
             $this->ignoreEvent = true;
-            foreach (array($this->leftAttribute,$this->rightAttribute) as $attribute) {
-                $condition = $attribute.'>='.$key.' AND '.$this->rootAttribute.'='.$target->{$this->rootAttribute};
+            foreach (array($this->leftAttribute, $this->rightAttribute) as $attribute) {
+                $condition = $attribute . '>=' . $key
+                    . ' AND ' . $this->rootAttribute . '=' . $target->{$this->rootAttribute};
                 foreach ($owner::find($condition) as $i) {
-                    if ($i->update(array($attribute=>$i->{$attribute}+$right-$left+1)) == false) {
+                    if ($i->update(array($attribute => $i->{$attribute} + $right - $left + 1)) == false) {
                         $owner->getDI()->getDb()->rollback();
                         $this->ignoreEvent = false;
 
@@ -587,17 +617,17 @@ class NestedSet extends Behavior implements BehaviorInterface
                 }
             }
 
-            $delta=$key-$left;
+            $delta = $key - $left;
 
-            $condition = $this->leftAttribute.'>='.$left.' AND ';
-            $condition .= $this->rightAttribute.'<='.$right.' AND ';
-            $condition .= $this->rootAttribute.'='.$target->{$this->rootAttribute};
+            $condition = $this->leftAttribute . '>=' . $left . ' AND ';
+            $condition .= $this->rightAttribute . '<=' . $right . ' AND ';
+            $condition .= $this->rootAttribute . '=' . $target->{$this->rootAttribute};
             foreach ($owner::find($condition) as $i) {
                 $arr = array(
-                    $this->leftAttribute=>$i->{$this->leftAttribute}+$delta,
-                    $this->rightAttribute=>$i->{$this->rightAttribute}+$delta,
-                    $this->levelAttribute=>$i->{$this->levelAttribute}+$levelDelta,
-                    $this->rootAttribute=>$target->{$this->rootAttribute}
+                    $this->leftAttribute => $i->{$this->leftAttribute} + $delta,
+                    $this->rightAttribute => $i->{$this->rightAttribute} + $delta,
+                    $this->levelAttribute => $i->{$this->levelAttribute} + $levelDelta,
+                    $this->rootAttribute => $target->{$this->rootAttribute}
                 );
                 if ($i->update($arr) == false) {
                     $owner->getDI()->getDb()->rollback();
@@ -608,27 +638,27 @@ class NestedSet extends Behavior implements BehaviorInterface
             }
             $this->ignoreEvent = false;
 
-            $this->shiftLeftRight($right+1, $left-$right-1);
+            $this->shiftLeftRight($right + 1, $left - $right - 1);
 
             $owner->getDI()->getDb()->commit();
         } else {
-            $delta=$right-$left+1;
+            $delta = $right - $left + 1;
             $this->shiftLeftRight($key, $delta);
 
-            if ($left>=$key) {
-                $left+=$delta;
-                $right+=$delta;
+            if ($left >= $key) {
+                $left += $delta;
+                $right += $delta;
             }
 
-            $condition=$this->leftAttribute.'>='.$left.' AND '.$this->rightAttribute.'<='.$right;
+            $condition = $this->leftAttribute . '>=' . $left . ' AND ' . $this->rightAttribute . '<=' . $right;
 
             if ($this->hasManyRoots) {
-                $condition.=' AND '.$this->rootAttribute.'='.$owner->{$this->rootAttribute};
+                $condition .= ' AND ' . $this->rootAttribute . '=' . $owner->{$this->rootAttribute};
             }
 
             $this->ignoreEvent = true;
             foreach ($owner::find($condition) as $i) {
-                if ($i->update(array($this->levelAttribute=>$i->{$this->levelAttribute}+$levelDelta)) == false) {
+                if ($i->update(array($this->levelAttribute => $i->{$this->levelAttribute} + $levelDelta)) == false) {
                     $owner->getDI()->getDb()->rollback();
                     $this->ignoreEvent = false;
 
@@ -636,15 +666,15 @@ class NestedSet extends Behavior implements BehaviorInterface
                 }
             }
 
-            foreach (array($this->leftAttribute,$this->rightAttribute) as $attribute) {
-                $condition=$attribute.'>='.$left.' AND '.$attribute.'<='.$right;
+            foreach (array($this->leftAttribute, $this->rightAttribute) as $attribute) {
+                $condition = $attribute . '>=' . $left . ' AND ' . $attribute . '<=' . $right;
 
                 if ($this->hasManyRoots) {
-                    $condition.=' AND '.$this->rootAttribute.'='.$owner->{$this->rootAttribute};
+                    $condition .= ' AND ' . $this->rootAttribute . '=' . $owner->{$this->rootAttribute};
                 }
 
                 foreach ($owner::find($condition) as $i) {
-                    if ($i->update(array($attribute=>$i->{$attribute}+$key-$left)) == false) {
+                    if ($i->update(array($attribute => $i->{$attribute} + $key - $left)) == false) {
                         $owner->getDI()->getDb()->rollback();
                         $this->ignoreEvent = false;
 
@@ -654,7 +684,7 @@ class NestedSet extends Behavior implements BehaviorInterface
             }
             $this->ignoreEvent = false;
 
-            $this->shiftLeftRight($right+1, -$delta);
+            $this->shiftLeftRight($right + 1, -$delta);
 
             $owner->getDI()->getDb()->commit();
         }
@@ -663,18 +693,18 @@ class NestedSet extends Behavior implements BehaviorInterface
     }
 
     /**
-     * @param int $key.
-     * @param int $delta.
+     * @param int $key
+     * @param int $delta
      */
     private function shiftLeftRight($key, $delta)
     {
         $owner = $this->getOwner();
 
         foreach (array($this->leftAttribute, $this->rightAttribute) as $attribute) {
-            $condition = $attribute.'>='.$key;
+            $condition = $attribute . '>=' . $key;
 
             if ($this->hasManyRoots) {
-                $condition.=' AND '.$this->rootAttribute.'='.$owner->{$this->rootAttribute};
+                $condition .= ' AND ' . $this->rootAttribute . '=' . $owner->{$this->rootAttribute};
             }
 
             $query = sprintf(
@@ -690,16 +720,17 @@ class NestedSet extends Behavior implements BehaviorInterface
     }
 
     /**
-     * @param  \Phalcon\Mvc\ModelInterface  $target.
-     * @param  int                          $key.
-     * @param  int                          $levelUp.
-     * @param  array                        $attributes.
-     * @return boolean.
+     * @param  \Phalcon\Mvc\ModelInterface $target
+     * @param  int $key
+     * @param  int $levelUp
+     * @param  array $attributes
+     *
+     * @return boolean
      * @throws \Phalcon\Mvc\Model\Exception
      */
     private function addNode($target, $key, $levelUp, $attributes)
     {
-        $owner=$this->getOwner();
+        $owner = $this->getOwner();
 
         if (!$target) {
             throw new \Phalcon\Mvc\Model\Exception('The node cannot be inserted because target is not defined.');
@@ -742,9 +773,10 @@ class NestedSet extends Behavior implements BehaviorInterface
     }
 
     /**
-     * @param  array                        $attributes.
-     * @param  array                        $whiteList.
-     * @return boolean.
+     * @param  array $attributes
+     * @param  array $whiteList
+     *
+     * @return boolean
      * @throws \Phalcon\Mvc\Model\Exception
      */
     private function makeRoot($attributes, $whiteList)
@@ -765,12 +797,11 @@ class NestedSet extends Behavior implements BehaviorInterface
             }
 
             $pk = $owner->{$this->rootAttribute} = $owner->{$this->primaryKey};
-            $owner::findFirst($pk)->update(array($this->rootAttribute=>$pk));
+            $owner::findFirst($pk)->update(array($this->rootAttribute => $pk));
             $this->ignoreEvent = false;
 
             $owner->getDI()->getDb()->commit();
         } else {
-
             if (count($owner->roots())) {
                 throw new \Phalcon\Mvc\Model\Exception('Cannot create more than one root in single root mode.');
             }

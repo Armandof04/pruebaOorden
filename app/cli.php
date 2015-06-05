@@ -1,16 +1,26 @@
 <?php
+use Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter;
 
 use Phalcon\DI\FactoryDefault\CLI as CliDI,
      Phalcon\CLI\Console as ConsoleApp;
+
 
  define('VERSION', '1.0.0');
 
  //Using the CLI factory default services container. 
  $di = new CliDI();
 
+
+
+
+
+
+
  // Define path to application directory
  defined('APPLICATION_PATH')
  || define('APPLICATION_PATH', realpath(dirname(__FILE__)));
+
+
 
  /**
   * Register the autoloader and tell it to register the tasks directory
@@ -19,17 +29,22 @@ use Phalcon\DI\FactoryDefault\CLI as CliDI,
  $loader = new \Phalcon\Loader();
  $loader->registerDirs(
      array(
-         APPLICATION_PATH . '/tasks'
+         APPLICATION_PATH . '/tasks',
+        'modelsDir' => __DIR__ . '/../../app/models/',
      )
  );
  //Registro el Namespaces del directorio de la queues
  $loader->registerNamespaces(
    array(
-        'Phalcon' => APPLICATION_PATH . '/vendor/phalcon/incubator/Library/Phalcon'
+        'Phalcon' => APPLICATION_PATH . '/vendor/phalcon/incubator/Library/Phalcon',
+        'prueba\Models' =>__DIR__ . '/../app/models/',
     )
 );
 
  $loader->register();
+
+
+
 
  // Load the configuration file (if any) 
  // Cargar el archivo de configuración (si la hay)
@@ -42,6 +57,21 @@ use Phalcon\DI\FactoryDefault\CLI as CliDI,
  $console = new ConsoleApp();
  $console->setDI($di);
 
+
+
+
+
+$di->set('db', function () use ($di) {
+    $config = $di->getConfig();
+
+    return new DbAdapter(array(
+        'host' => $config->database->host,
+        'username' => $config->database->username,
+        'password' => $config->database->password,
+        'dbname' => $config->database->dbname,
+        "charset" => $config->database->charset
+    ));
+});
  /**
  * Process the console arguments
  */

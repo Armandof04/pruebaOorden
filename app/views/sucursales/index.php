@@ -1,15 +1,7 @@
-Seccion Sucursales - <?=$this->tag->linkTo("index","Regresar"); ?>
-<p>
-<?=$this->tag->linkTo("sucursales/add","Agregar"); ?>
-</p>
-<style type="text/css">
-	th{
-		background-color: gray;
-		border-color: gray;
-	}
+<h3>Seccion Sucursales <small><?=$this->tag->linkTo("index","Regresar"); ?></small></h3>
 
-</style>
-<table>
+
+<table class="table table-striped">
 	<tr>
 		<th>Sucursal ID
 		</th>

@@ -1,12 +1,12 @@
 <?php
 
- if($this->session->has("username"))
+        if($this->session->has("username"))
         {
-           echo $this->session->get("username");
+          // echo $this->session->get("username");
         }
         else
         {
-            echo "La sesión no existe<br>";
+          //  echo "La sesión no existe<br>";
         }
 
 
@@ -19,7 +19,7 @@
  
             //obtenemos el valor de la cookie
             $value = $rememberMe->getValue();
-            echo $value;
+         //   echo $value;
  
             //si la cookie está encriptada este es el resultado 
             //YA3njYIgfCYb19uHs91PG1NYnceD8BD1Ss9ujjGb%2FveeztZhrNbbflGnGg0Nd4g7Rz%2Fb5vgAOZvD6NZmqS%2BXSg%3D%3D
@@ -29,7 +29,7 @@
         }
         else
         {
-            echo "La cookie remember-me no existe";
+           // echo "La cookie remember-me no existe";
         }
 
 
@@ -37,38 +37,23 @@
 
 ?>
 
+<div class="col-md-4 col-md-push-4">
+<?=$this->tag->form(['action'=> 'session/start', 'role'=>'form'])?>
 
-<?=$this->tag->form('session/start')?>
-<table>
-    <tr>
-        <td>    <label for="email">Usuario_ID</label>  </td>
-    </tr>
-    <tr>
-        <td>    <?=$this->tag->textField(["usuario_id", "size" => "30"]);?>  </td>
-    </tr>
-    <tr>
-        <td>    <label for="password">Contraseña</label>    </td>
-    </tr>
-    <tr>
-        <td>    <?=$this->tag->passwordField(["password", "size" => "30"]);?>   </td>
-    </tr>
-    <tr>    
-        <td>   <?=$this->tag->checkField(['cookie', 'value'=>1]);?> Mantener la sesión</td>
-    </tr>
-    <tr>
-        <td colspan="2" style="text-align: right;">
-                <br>
-                <?=$this->tag->submitButton('Aceptar');?>
-        </td>
-    </tr>
-    <tr>
-        <td><br></td>
-    </tr>
-    <tr>
-        <td>
-            ¿No estas registrado,  - <?=$this->tag->linkTo("usuarios/add","Registrate ahora"); ?>
-        </td>
-    </tr>
-</table>
+        <div class="form-group">
+            <?=$this->tag->textField(["usuario_id", "size" => "30", "class"=>"form-control", "placeholder"=>"Usuario"  ]);?>  </td>
+        </div>
+        <div class="form-group">
+            <?=$this->tag->passwordField(["password", "size" => "30", "class"=>"form-control", "placeholder"=>"Password"]);?>   </td>
+        </div>
+        <div class="form-group">
+            <?=$this->tag->checkField(['cookie', 'value'=>1]);?> Mantener la sesión</td>
+        </div>
+        <div class="form-group text-right">
+            <?=$this->tag->submitButton(['Aceptar', "class"=>"btn btn-primary"]);?>
+        </div>
+        <div class="form-group text-center">
+        ¿No estas registrado,  - <?=$this->tag->linkTo("usuarios/add","Registrate ahora"); ?>
+        </div>
 </form>
-
+</div>

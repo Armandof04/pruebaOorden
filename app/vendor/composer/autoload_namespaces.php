@@ -7,4 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Phalcon' => array($vendorDir . '/phalcon/incubator/Library'),
+    'PHPExcel' => array($vendorDir . '/phpoffice/phpexcel/Classes'),
+    'Doctrine\\Common' => array($vendorDir . '/doctrine/common/lib'),
 );

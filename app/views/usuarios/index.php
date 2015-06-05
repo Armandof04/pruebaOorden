@@ -4,14 +4,14 @@ Seccion Usuarios - <?=$this->tag->linkTo("index","Regresar"); ?>
 <?=$this->tag->linkTo("usuarios/add","Agregar"); ?>
 </p>
 
-<table>
+<table class="table table-striped">
 	<tr>
 		<th>ID
 		</th>
 		<th>Nombre del Usuario
 		</th>
-		<th>
-			action
+		<th colspan="3">
+			acciones
 		</th>
 	</tr>
 

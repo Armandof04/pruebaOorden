@@ -4,6 +4,14 @@
 
 class IndexController extends ControllerBase
 {
+
+    /**
+     * Default action. Set the private (authenticated) layout (layouts/private.volt)
+     */
+    public function initialize()
+    {
+        $this->view->setTemplateBefore('private');
+    }
    
     /**
     * function indexAction

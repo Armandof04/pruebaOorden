@@ -6,6 +6,14 @@ use prueba\Models as Modelos;
 class OrganizacionesController extends \Phalcon\Mvc\Controller
 {
     /**
+     * Default action. Set the private (authenticated) layout (layouts/private.volt)
+     */
+    public function initialize()
+    {
+        $this->view->setTemplateBefore('private');
+    }
+
+    /**
     * function indexAction
     * muestro el contido de la tabla Organizaciones
     * @return void

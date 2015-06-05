@@ -5,6 +5,14 @@ use Phalcon\Queue\Beanstalk\Extended as BeanstalkExtended;
 
 class UsuariosController extends \Phalcon\Mvc\Controller
 {
+        /**
+     * Default action. Set the private (authenticated) layout (layouts/private.volt)
+     */
+    public function initialize()
+    {
+        $this->view->setTemplateBefore('private');
+    }
+
      /**
      * function indexAction
      * muestro el contido de la tabla Usuarios
@@ -24,7 +32,7 @@ class UsuariosController extends \Phalcon\Mvc\Controller
 
     public function addAction()
     {
-    	
+    	$this->view->setTemplateBefore('public');
     	//recupero los datos enviados por el formulario
     	if($this->request->isPost())
     	{    				

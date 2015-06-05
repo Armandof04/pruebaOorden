@@ -1,46 +1,34 @@
  - <?=$this->tag->linkTo("index","Regresar"); ?>
-<form action='' method='post'>
-		 <input type="hidden" name="<?php echo $this->security->getTokenKey() ?>"
-                value="<?php echo $this->security->getToken() ?>"/>
-
-	<table>
-		<tr>
-			<td>
-				Sucursal ID  <?=$this->tag->textField(['sucursal_id','size'=>30] );?>  int
-		    </td>
-		</tr>
-		<tr>
-		 	<td>
-				organizacion   <?=$this->tag->textField(['organizacion_id','size'=>30] );?> int
-		   </td>
-		</tr>
-		<tr>
-			<td>
-				clave    <?=$this->tag->textField(['clave','size'=>30] );?> varchar
-		    </td>
-		 </tr>
-		<tr>
-			<td>
-				nombre    <?=$this->tag->textField(['nombre','size'=>30] );?> varchar
-		<tr>
-			<td>
-				direccion    <?=$this->tag->textField(['direccion','size'=>30] );?> varchar
-			</td>
-		<tr>
-			<td>
-				default   <?=$this->tag->textField(['default','size'=>30] );?> S   o    N
-		    </td>
-		</tr>
-		<tr>
-			<td>
-				sucursalescol   <?=$this->tag->textField(['sucursalescol','size'=>30] );?> varchar
-		    </td>
-		</tr>
-
-		<tr>
-			<td>
-				<?=$this->tag->submitButton('Submit');?>
-			</td>
-		</tr>
-	</table>
-</form>
+<div class="row">
+	<div class="col-md-8">
+	<form action='' method='post' role="form">
+			 <input type="hidden" name="<?php echo $this->security->getTokenKey() ?>"
+	                value="<?php echo $this->security->getToken() ?>"/>
+		<div class="form-group">
+					<?=$this->tag->textField(['sucursal_id', 'class' => 'form-control', "placeholder"=>"Sucursal"]);?>  
+		</div>
+		<div class="form-group">
+					<?=$this->tag->textField(['organizacion_id', 'class' => 'form-control', "placeholder"=>"Organizacion"]);?> 
+		</div>
+		<div class="form-group">
+					<?=$this->tag->textField(['clave', 'class' => 'form-control', "placeholder"=>"Clave"]);?> 
+		</div>
+		<div class="form-group">
+					<?=$this->tag->textField(['nombre', 'class' => 'form-control', "placeholder"=>"Nombre"]);?>
+		</div>
+		<div class="form-group">
+					<?=$this->tag->textField(['direccion', 'class' => 'form-control', "placeholder"=>"Dirección"]);?> 
+		</div>
+		<div class="form-group">
+					<?=$this->tag->textField(['sucursalescol', 'class' => 'form-control', "placeholder"=>"Sucursal"] );?> 
+		</div>
+		<div class="form-group">
+					Si <?=$this->tag->radioField(['default','Value' => 'S']);?>
+					No <?=$this->tag->radioField(['default', 'Value' => 'N']);?>
+		</div>
+		<div class="form-group text-right">
+					<?=$this->tag->submitButton(['Guardar',  "class"=>"btn btn-primary"]);?>
+		</div>
+	</form>
+	</div>
+</div>

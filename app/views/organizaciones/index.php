@@ -1,50 +1,7 @@
-<head>
-	<style type="text/css">
-	#suc{
-		max-width: 30px;
-		height: auto;
-	}
-	table
-	{ 
-  		border-collapse: collapse; 
-  		border: solid 1px;
-  		border-color: gray;
-  		border-bottom-color: blue;
-	}
-	th{
-		background-color: yellow;
 
-	}
-	.a{
-		padding-left: 5px;
-		padding-right: -5px;
-	}
-	th, td
-	{ 
-  		border-collapse: collapse; 
-  		border-top: solid 1px;
-  		border-left: none;
-  		border-color: blue;
-  		padding-left: 15px;
-  		margin: 15px;
-  		
-	}
-	a{
-		color:red;
-	}
-	</style>
-	
-</head>
+<h3>Seccion Organizaciones -<small><?=$this->tag->linkTo("index","Regresar"); ?></small> </h3>
 
-
-
-Seccion Organizaciones - <?=$this->tag->linkTo("index","Regresar"); ?>
-<p>
-
-</p>
-
-
-<table>
+<table  class="table table-striped">
 	<tr>
 		<th class="a">ID
 		</th>

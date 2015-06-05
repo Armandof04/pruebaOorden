@@ -8,11 +8,14 @@ use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Session as FlashSession;
-
+use Phalcon\Mvc\Router as Router;//hacemos uso de router
+use Phalcon\Mvc\Dispatcher as PhDispatcher;
 /**
  * The FactoryDefault Dependency Injector automatically register the right services providing a full stack framework
+ * Aquí se crea el contenedor donde se irán inyectando nuestras dependencias, a partir de esa linea le añadimos todo lo que necesitamos. 
+ * Pues de la misma forma es como debemos hacer para utilizar las rutas
  */
-$di = new FactoryDefault();
+$di = new FactoryDefault(); 
 
 
 /**
@@ -127,6 +130,23 @@ $di->set('cacheUs', function() use ($config)
         return $cache;
 
     });
+
+//cache del find de tipoCambio
+$di->set('cacheTi', function() use ($config)
+    {
+        //Tiempo que durara la cache (un dia)
+        $frontCache = new \Phalcon\Cache\Frontend\Data([
+                "lifetime" => 3600
+        ]);
+
+        //Configurar la Memcache para conexion a la Base de Datos
+        $cache = new \Phalcon\Cache\Backend\Memcache($frontCache, [
+                'host' => $config->database->host,
+                "port" => "11211"
+        ]);
+        return $cache;
+
+    });
 /*---- Termina el cache-----*/
 
 
@@ -165,19 +185,28 @@ $di->set('IndexController', function() {
 /**
  * Register the flash service with custom CSS classes
  */
-$di->set('flash', function(){
-    return new FlashSession(array(
-        'error'   => 'alert alert-danger',
-        'success' => 'alert alert-success',
-        'notice'  => 'alert alert-info',
-    ));
+$di->set('flash', function()
+{
+    return new Phalcon\Flash\Direct(
+        array(
+            'error' => 'alert alert-error',
+            'success' => 'alert alert-success',
+            'notice' => 'alert alert-info',
+            'warning' => 'alert alert-warning',
+        )
+    );
 });
 
 /**
- * Router
- */
-$di->set('router', function() {
-    return require __DIR__ . '/routers.php';
+ * creamos nuestras rutas
+ *creamos una nueva instancia del objeto Router,
+ * lo que estamos haciendo es inyectar en el contenedor de dependencias el objeto router para que pueda ser utilizado.
+*/
+$di->set('router', function() 
+{
+    $router = new Router();
+ 
+    return $router;
 });
 
 $di->set('cookies', function() {
@@ -185,5 +214,6 @@ $di->set('cookies', function() {
     $cookies->useEncryption(false);
     return $cookies;
 });
+
 
 

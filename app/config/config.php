@@ -17,6 +17,8 @@ return new \Phalcon\Config(array(
         'libraryDir'     => __DIR__ . '/../../app/library/',
         'cacheDir'       => __DIR__ . '/../../app/cache/',
         'incubatorDir'   => __DIR__ . '/../../app/vendor/phalcon/incubator/Library/Phalcon',
+        'phpexcelDir'    => __DIR__ . '/../../app/vendor/phpoffice/phpexcel/Classes/',
+        'goutte'         => __DIR__ . '/../../app/vendor/autoload.php',
         'publicUrl'      => 'prueba.io',
         'baseUri'        => '/',
     ),

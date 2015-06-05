@@ -1,7 +1,9 @@
 {
     "require": {
         "swiftmailer/swiftmailer": "@stable",
-        "phalcon/incubator": "@stable"
+        "phalcon/incubator": "@stable",
+		"doctrine/common": "2.3.0",	
+		"phpoffice/phpexcel": "@stable"
     }
-
 }
+

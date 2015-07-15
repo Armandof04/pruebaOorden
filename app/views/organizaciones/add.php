@@ -123,3 +123,8 @@
 		</tr>
 	</table>
 </form>
+<form>
+		<input type="text" name="<?php echo $this->security->getTokenKey() ?>"
+                value="<?php echo $this->security->getToken() ?>"/>
+
+</form>

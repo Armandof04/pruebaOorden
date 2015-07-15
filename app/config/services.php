@@ -7,7 +7,6 @@ use Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
-use Phalcon\Flash\Session as FlashSession;
 use Phalcon\Mvc\Router as Router;//hacemos uso de router
 use Phalcon\Mvc\Dispatcher as PhDispatcher;
 /**
@@ -185,14 +184,14 @@ $di->set('IndexController', function() {
 /**
  * Register the flash service with custom CSS classes
  */
-$di->set('flash', function()
+$di->set("flashSession", function()
 {
-    return new Phalcon\Flash\Direct(
+    return new Phalcon\Flash\Session(
         array(
-            'error' => 'alert alert-error',
-            'success' => 'alert alert-success',
-            'notice' => 'alert alert-info',
-            'warning' => 'alert alert-warning',
+            "error"     =>      "alert alert-danger",
+            "success"   =>      "alert alert-success",
+            "info"      =>      "alert alert-info",
+            "warning"   =>      "alert alert-warning"
         )
     );
 });

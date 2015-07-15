@@ -1,6 +1,7 @@
 <?php
 namespace prueba\Models;
 use Phalcon\Mvc\Model\Validator\Email as Email;
+use Phalcon\Mvc\Model\Validator\PresenceOf;
 
 class Usuarios extends \Phalcon\Mvc\Model
 {
@@ -97,10 +98,27 @@ class Usuarios extends \Phalcon\Mvc\Model
                 )
             )
         );
+        $this->validate(
+            new PresenceOf([
+                'field'    => 'usuario_id',
+                'required' => true,
+                'message' => 'El Tipo de Campo es requerido.'
+            ])
+        );
+        
+        $this->validate(
+            new PresenceOf([
+                'field'    => 'password',
+                'required' => true,
+                'message' => 'El campo valor es requerido.'
+            ])
+        );
         if ($this->validationHasFailed() == true) {
             return false;
         }
     }
+
+    
 
      public function initialize()
       {

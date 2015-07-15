@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> Prueba Oorden</title>
-		
+		<title>Oorden prueba</title>
 			{{ stylesheet_link('css/bootstrap.min.css') }}
+			{{ assets.outputCss() }}		
+			
 	</head>
 	<body>
 		
-				{{content()}}
-		
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+				{{ content() }}
+
+			{{ javascript_include("js/jquery-1.10.2.min.js") }}
+			{{ javascript_include("js/bootstrap.min.js") }}
+			{{ javascript_include("js/bootswatch.js") }}
+			
+
+			{{ assets.outputJs() }}
 
 	</body>
 </html>

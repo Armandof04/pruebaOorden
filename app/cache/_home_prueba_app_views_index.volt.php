@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> Prueba Oorden</title>
-		
+		<title>Oorden prueba</title>
 			<?php echo $this->tag->stylesheetLink('css/bootstrap.min.css'); ?>
+			<?php echo $this->assets->outputCss(); ?>		
+			
 	</head>
 	<body>
 		
 				<?php echo $this->getContent(); ?>
-		
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+			<?php echo $this->tag->javascriptInclude('js/jquery-1.10.2.min.js'); ?>
+			<?php echo $this->tag->javascriptInclude('js/bootstrap.min.js'); ?>
+			<?php echo $this->tag->javascriptInclude('js/bootswatch.js'); ?>
+			
+
+			<?php echo $this->assets->outputJs(); ?>
 
 	</body>
 </html>

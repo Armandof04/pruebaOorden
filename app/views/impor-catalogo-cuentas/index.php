@@ -1,18 +1,11 @@
-<div class="row">
-  <div class="col-lg-12">
-    <div class="page-header">
-      <h1 id="container">Importar Catalogo de Cuentas</h1>
-    </div>
-    <div class="bs-component">
-      <div class="jumbotron">
-        <h3>Seleccione  de donde proviene su catalogo de cuentas</h3>
-        <p>Puede importar de diferente fuentes como COI, CONTPAQ y/o SIIGO en un archivo en formato xls</p>
-        <p>
-        <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCoi">Importar</button>
-        </p>
-      </div>
-    </div>
-  </div>
+
+<div class="jumbotron">
+  <h3>Importar Catalogo de Cuenta</h3>
+  <h4>Seleccione  de donde proviene su catalogo de cuentas</h4>
+  <p>Puede importar de diferente fuentes como COI, CONTPAQ y/o SIIGO en un archivo en formato xls</p>
+      <p>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modalCoi">Importar</button>
+      </p>
 </div>
 
 <div class="modal fade" id="modalCoi">
@@ -24,27 +17,41 @@
       </div>
       <div class="modal-body">
         <p>
-        	<?=$this->tag->form(["impor-catalogo-cuentas/uploadCoi", "method" => "post", "enctype" => "multipart/form-data", 'role'=>'form']);?>
+        	<?=$this->tag->form(["impor-catalogo-cuentas/subirCuenta", "method" => "post", "enctype" => "multipart/form-data", 'role'=>'form']);?>
 			<div class="form-group">
-				
-				<?=$this->tag->fileField("file[]");?>
-				<p class="help-block">Haga clic para importar un catalogo de cuenta</p>
+				<div class="form-group">
+        <label><h5>¿Origen del Catalogo?</h5></label>
+        <br><blockquote>
+          EXCEL <?=$this->tag->radioField(['fuente','Value' => 'excel']);?>
+          COI <?=$this->tag->radioField(['fuente','Value' => 'coi']);?>
+          CONTAPQ <?=$this->tag->radioField(['fuente', 'Value' => 'contpaq']);?>
+          SIIGO <?=$this->tag->radioField(['fuente', 'Value' => 'siigo']);?>
+        </blockquote>
+        </div>      
+
+        <div class="col-lg-12 col-sm-12 col-12" id = "seleccion" style="display: block;">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <span class="btn btn-primary btn-file">
+                        Browse&hellip; <input type="file" name="file[]">
+                    </span>
+                </span>
+                <input type="text" class="form-control" readonly>
+            </div>
+            <span class="help-block">
+                Haga clic para importar un catalogo de cuenta
+            </span>
+        </div>
+
 			</div>
-			<div class="form-group">
-				<label>¿Origen del Catalogo?</label>
-					COI <?=$this->tag->radioField(['default','Value' => 'S']);?>
-					CONTAPQ <?=$this->tag->radioField(['default', 'Value' => 'N']);?>
-					SIIGO <?=$this->tag->radioField(['default', 'Value' => 'N']);?>
-			</div>				
+				
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <?=$this->tag->submitButton(['Importar',  "class"=>"btn btn-primary"]);?>
+        <?=$this->tag->submitButton(['Importar',  "class"=>"btn btn-success"]);?>
       </div>
       	</form>
     </div>
   </div>
 </div>
-
-

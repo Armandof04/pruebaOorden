@@ -1,6 +1,6 @@
 Seccion Usuarios - <?=$this->tag->linkTo("index","Regresar"); ?>
 <form action='' method='post'>
-	 <input type="hidden" name="<?php echo $this->security->getTokenKey() ?>"
+	 <input type="text" name="<?php echo $this->security->getTokenKey() ?>"
                 value="<?php echo $this->security->getToken() ?>"/>
 
 	<table>

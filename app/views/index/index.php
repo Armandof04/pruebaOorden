@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    $("#button").click(function(){
+    alert("The paragraph was clicked.");
+    });
+
+</script>
+
 <?php
         echo "<p>  Bienvenido ".$mostrarUsuario->nombre.'<br>';
         $link = $this->tag->linkTo("organizaciones/","Organizaciones");

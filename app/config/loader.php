@@ -23,15 +23,6 @@ $loader
        'Goutte\Client'  =>  $config->application->goutte,
     )
 )
-/*
-->registerClasses(
-    array(
-        "IOFactory"         => $config->application->phpexcelDir.'/PHPExcel/IOFactory.php',
-        "PHPExcel_Reader_Excel2007"   =>    '/../../app/vendor/phpoffice/phpexcel/Classes/PHPExcel/Reader/Excel2007.php'
-    )
-)*/
-//a ver corre eso para ver donde falla
-
 ->registerPrefixes(
     [
       'PHPExcel' => '/../../app/vendor/phpoffice/phpexcel/Classes/PHPExcel'

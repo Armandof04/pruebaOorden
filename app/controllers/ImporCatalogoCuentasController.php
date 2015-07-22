@@ -115,95 +115,83 @@ class ImporCatalogoCuentasController extends \Phalcon\Mvc\Controller
                    /** PHPExcel **/           
                    
                     $objPHPExcel = \PHPExcel_IOFactory::load($file);
-                    $objWorksheet = $objPHPExcel->getActiveSheet();
-                    
+                    $objHoja = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true,true,true,true,true);                
 
-                    
-                    $fila =0;
-                    
-                    foreach ($objWorksheet->getRowIterator() as $row)
-                    {
-                        $fila +=1;
-                       
-                        //Se crea el UID
+
+                     $fila =0;
+
+
+                    foreach ($objHoja as $iIndice=>$objCelda) {
+                        
                         $data = openssl_random_pseudo_bytes( 16 );
                         $data[6] = chr( ord( $data[6] ) & 0x0f | 0x40 ); // set version to 0100
                         $data[8] = chr( ord( $data[8] ) & 0x3f | 0x80 ); // set bits 6-7 to 10
 
-                        $id = vsprintf( '%s%s-%s-%s-%s-%s%s%s', str_split( bin2hex( $data ), 4 ) ); 
+                        $id = vsprintf( '%s%s-%s-%s-%s-%s%s%s', str_split( bin2hex( $data ), 4 ) );
+    
+                        if($fila != 0)    $arreglo[$fila]['id']=$id;
 
-                        
-                        if($fila != 1)    $arreglo[$fila]['id']=$id;
+                         
 
-                      
-                        $cellIterator = $row->getCellIterator();
-                        $cellIterator->setIterateOnlyExistingCells(false); // This loops all cells,
-                        // even if it is not set.
-                        // By default, only cells
-                        // that are set will be
-                        // iterated.
-                        $celda = 0;
-
-                       
-                            
-                            switch ($fuente) 
+                        switch ($fuente) 
                             {
-                                case 'excel':
-                                    
-                                    $titulo=array('numCuenta', 'nombre', 'descripcion', 'tipo_id', 'naturaleza', 'codigoOficial', 'moneda', 'numeroCheque' );
+                                case 1:
 
-                                    foreach ($cellIterator as $cell) 
+                                    $arreglo[$fila]['numCuenta']=$objCelda['A'];
+                                    $arreglo[$fila]['nombre']=$objCelda['B'];
+                                    $arreglo[$fila]['descripcion']=$objCelda['C'];
+                                    $arreglo[$fila]['tipo_id']=$objCelda['D'];  
+                                    $arreglo[$fila]['naturaleza']=$objCelda['E'];
+                                    $arreglo[$fila]['codigoOficial']=$objCelda['F'];
+                                    $arreglo[$fila]['moneda']=$objCelda['G'];
+                                    $arreglo[$fila]['numeroCheque']=$objCelda['H'];
+
+                                break;
+
+                                case 2:                    
+
+                                    $columna = "A";
+                                    while ( true ) 
                                     {   
-                                        //  echo '<td>'. $cell->getValue() . '</td>' . "\n";
-                                        if($celda <=8 && $fila != 1) //En archivos 2007 o superiores detecta celdas null como activas
-                                        {   
-                                            $arreglo[$fila][$titulo[$celda]]=$cell->getValue();
-                                        }
-                                        $celda +=1;
-                                    }  
-                                    break;
-                                case 'coi':
-                                    $titulo=array('numCuenta', 'codigoOficial', 'naturaleza', 'nombre', 'moneda', 'numeroCheque' );
+                                        if($objCelda[$columna] != null && $objCelda[$columna] != "-")
+                                            break;
 
-                                    $bandera = 0;
-                                    
-                                    foreach ($cellIterator as $cell) 
-                                    {  
-                                        if($cell->getValue() != "-" && $cell->getValue() != "" )
-                                        {   
-                                            $bandera = 1;
-                                        }   
-                                        
-                                        if($bandera == 1)
-                                        {
-                                             if($celda <=8 && $fila != 1) //En archivos 2007 o superiores detecta celdas null como activas
-                                            {   
-                                                $arreglo[$fila][$titulo[$celda]]=$cell->getValue()." :: ".$bandera." :: ".$fila."::".$titulo[$celda];
-                                            }
-                                                $arreglo[$fila]['tipo_id']=$celda;
-                                                $arreglo[$fila]['descripcion']=$bandera;
-
-                                                $celda +=1;
-                                        }
-
-                                        
-                                        
+                                       ++$columna;
+                                       echo $columna."<br>";
                                     }
-                                    break;
+                    
+
+                                    $arreglo[$fila]['numCuenta']=$objCelda[$columna];
+
+                                    $arreglo[$fila]['codigoOficial']=$objCelda['E'];
+                                    $arreglo[$fila]['naturaleza']=$objCelda['F'];
+                                    $arreglo[$fila]['nombre']=$objCelda['G'];
+                                    $arreglo[$fila]['saldo']=$objCelda['H'];
+                                    $arreglo[$fila]['acumulativa']=$objCelda['I'];
+
+                                    $arreglo[$fila]['descripcion']="";
+                                    $arreglo[$fila]['tipo_id']="";
+                                    
+                                    
+                                    $arreglo[$fila]['moneda']="";
+                                    $arreglo[$fila]['numeroCheque']="";
+                                
+                                break;
                                 
                                 default:
-                                           $this->flash->error("No ha seleccionado");                    
-                                    break;
+                                   $this->flash->error("No ha seleccionado");                    
+                                break;
                             }
 
-                            
-                          
+                        $fila +=1;        
+ 
                     }
+                    //echo "<br>".$fuente."<br>Fila: ".$fila."<br>";
+                  //  echo "<pre>";
+                  //  var_dump($arreglo);
+                  //  echo "</pre>";
+                  //  die();
 
-                //    echo "Bandera: ".$bandera."<br><pre>";
-                //    var_dump($arreglo);
-                //    echo "</pre>";
-                //            die();
 
                     $numFilas =  count($arreglo);
                     

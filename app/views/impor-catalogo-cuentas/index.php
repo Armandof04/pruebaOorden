@@ -22,10 +22,10 @@
 				<div class="form-group">
         <label><h5>¿Origen del Catalogo?</h5></label>
         <br><blockquote>
-          EXCEL <?=$this->tag->radioField(['fuente','Value' => 'excel']);?>
-          COI <?=$this->tag->radioField(['fuente','Value' => 'coi']);?>
-          CONTAPQ <?=$this->tag->radioField(['fuente', 'Value' => 'contpaq']);?>
-          SIIGO <?=$this->tag->radioField(['fuente', 'Value' => 'siigo']);?>
+          EXCEL <?=$this->tag->radioField(['fuente','Value' => 1]);?>
+          COI <?=$this->tag->radioField(['fuente','Value' => 2]);?>
+          CONTAPQ <?=$this->tag->radioField(['fuente', 'Value' => 3]);?>
+          SIIGO <?=$this->tag->radioField(['fuente', 'Value' => 4]);?>
         </blockquote>
         </div>      
 
